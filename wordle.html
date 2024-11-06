@@ -53,10 +53,12 @@
       </div>
       <div class="middle-container">
         <h1>WORDLE</h1>
-        <div class="popup-Box" style="color: black">
-          Congratulations you guessed it
-          <div class="word">the word was:</div>
-          <button class="next-round">Next Round</button>
+        <div class="popup-box" style="display: none;">
+          <div class="popup-content">
+            <p id="popup-message"></p>
+            <p>Your points: <span id="score"></span></p>
+            <button id="next-round-button">Next Round</button>
+          </div>
         </div>
         <div class="grid-container">
           <div class="grid-blocks"></div>

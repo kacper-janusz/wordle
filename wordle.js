@@ -1,4 +1,5 @@
 import { randomWords } from "/words.js";
+let score = 0;
 const keyboardButton = document.querySelectorAll(".keyboard-button");
 let selectedWord;
 const gridBlocks = document.querySelectorAll(".grid-blocks");
@@ -42,6 +43,24 @@ function handlekeyAction(key) {
   }
 }
 
+function showPopup(message) {
+  const popupMessage = document.getElementById('popup-message');
+  const scoreElement = document.getElementById('score');
+  popupMessage.textContent = message;
+  scoreElement.textContent = score;
+
+  const popupBox = document.querySelector('popup-Box');
+  popupBox.style.display = 'block';
+
+  const nextRoundBtn = document.getElementById('next-round-btn');
+  nextRoundBtn.addEventListener("click", function() {
+    currentRow = 0;
+    activeIndex = 0;
+    gridBlocks.forEach(block => block.textContent = '');
+    popupBox.style.display = 'none';
+  })
+}
+
 function checkWord() {
   let typedWord = "";
   let selectedWordArray = selectedWord.split("");
@@ -79,7 +98,7 @@ function checkWord() {
 
   if (typedWord === selectedWord) {
     console.log("you guessed it");
-    alert("you guessed the word");
+    alert(`you guessed it / the word was: ${selectedWord}`);
     gridBlocks.forEach((grid) => (grid.style.color = "#009933"));
   } else {
     console.log("you're wrong");
@@ -88,8 +107,8 @@ function checkWord() {
       activeIndex = 0;
     }
     if (activeIndex === 5) {
-      console.log("game finished!!!");
-      alert("Game Over!!");
+      console.log(`game finished!!!`);
+      alert(`Game Over!!! / the word was: ${selectedWord}`);
     }
   }
 }

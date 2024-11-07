@@ -1,13 +1,15 @@
 import { randomWords } from "/words.js";
+
 let score = 0;
-const keyboardButton = document.querySelectorAll(".keyboard-button");
-let selectedWord;
-const gridBlocks = document.querySelectorAll(".grid-blocks");
-let activeIndex = 0;
+let streak = 0;
 let currentRow = 0;
-const rowLength = 5;
+let activeIndex = 0;
+let selectedWord;
 let selectedWordArray;
-const popUp = document.querySelector(".popup-box");
+let lastWord = "You will see the last round word here";
+const rowLength = 5;
+const gridBlocks = document.querySelectorAll(".grid-blocks");
+const keyboardButtons = document.querySelectorAll(".keyboard-button");
 const lowerCaseWords = randomWords.map(function (item) {
   return item.toLowerCase();
 });
@@ -17,12 +19,19 @@ function initialize() {
   selectedWord = lowerCaseWords[randomIndex];
   console.log(selectedWord);
   selectedWordArray = selectedWord.split("");
+  updateGameInfo();
 }
 
 initialize();
 
 document.addEventListener("keydown", function (event) {
   handlekeyAction(event.key);
+});
+
+keyboardButtons.forEach((button) => {
+  button.addEventListener("click", function () {
+    handlekeyAction(button.textContent);
+  });
 });
 
 function handlekeyAction(key) {
@@ -46,21 +55,28 @@ function handlekeyAction(key) {
 }
 
 function showPopup(message) {
-  const popupMessage = document.getElementById('popup-message');
-  const scoreElement = document.getElementById('score');
+  const popupMessage = document.getElementById("popup-message");
+  const scoreElement = document.getElementById("score");
   popupMessage.textContent = message;
   scoreElement.textContent = score;
 
-  const popupBox = document.querySelector('.popup-box');
-  popupBox.style.display = 'block';
+  const popupBox = document.querySelector(".popup-box");
+  popupBox.style.display = "block";
 
-  const nextRoundBtn = document.getElementById('next-round-button');
-  nextRoundBtn.addEventListener("click", function() {
+  const nextRoundBtn = document.getElementById("next-round-button");
+  nextRoundBtn.addEventListener("click", function () {
     currentRow = 0;
     activeIndex = 0;
-    gridBlocks.forEach(block => block.textContent = '');
-    popupBox.style.display = 'none';
-  })
+    gridBlocks.forEach((block) => {
+      block.textContent = "";
+      block.style.color = "";
+    });
+    keyboardButtons.forEach((button) => {
+      button.style.backgroundColor = "";
+    });
+    initialize();
+    popupBox.style.display = "none";
+  });
 }
 
 function checkWord() {
@@ -94,11 +110,15 @@ function checkWord() {
   for (let rowIndex = 0; rowIndex < rowLength; rowIndex++) {
     const currentGrid = gridBlocks[currentRow * rowLength + rowIndex];
     currentGrid.style.color = feedbackColors[rowIndex];
+    keyboardButtonsColor(typedWord[rowIndex], feedbackColors[rowIndex]);
   }
 
   if (typedWord === selectedWord) {
     console.log("you guessed it");
-    showPopup(`congratulation!! You guessed the word: ${selectedWord}, Your score is ${score}`);
+    score++;
+    streak++;
+    lastWord = selectedWord;
+    showPopup(`congratulation!! You guessed the word: ${selectedWord}`);
   } else {
     console.log("you're wrong");
     if (currentRow < gridBlocks.length / rowLength - 1) {
@@ -107,11 +127,28 @@ function checkWord() {
     }
     if (activeIndex === 5) {
       console.log(`game finished!!!`);
-      alert(`Game Over!!! / the word was: ${selectedWord}`);
+      lastWord = selectedWord;
+      showPopup(`Game Over !!!!!, the word was: ${selectedWord}`);
+      score = 0;
+      streak = 0;
     }
   }
+  updateGameInfo();
 }
 
-// link buttons
-// make the points counter
-// make a pop up with some info and next round button
+function keyboardButtonsColor(letter, color) {
+  const button = document.querySelector(
+    `.keyboard-button[data-key="${letter}"]`
+  );
+  if (!button) return;
+  button.style.backgroundColor =
+    color === "green" ? "green" : color === "#cccc00" ? "#cccc00" : "red";
+}
+
+function updateGameInfo() {
+  const lastWordElement = document.querySelector(".js-last-word");
+  const streakElement = document.querySelector(".js-streak-amount");
+
+  streakElement.textContent = streak;
+  lastWordElement.textContent = lastWord;
+}

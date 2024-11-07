@@ -117,19 +117,6 @@ strong {
     font-size: 23px;
 }
 
-.popup-Box {
-    background-color: white;
-}
-
-.next-round {
-    cursor: pointer;
-    color: black;
-    background-color: aquamarine;
-    border: 1px solid black;
-    border-radius: 10px;
-    padding: 10px;
-}
-
 .popup-box {
     position: fixed;
     top: 50%;
@@ -148,7 +135,7 @@ strong {
     margin: 0 auto;
 }
 
-#next-round-btn {
+#next-round-button {
     margin-top: 20px;
     padding: 10px;
     font-size: 16px;
@@ -157,3 +144,4 @@ strong {
     border: none;
     cursor: pointer;
 }
+

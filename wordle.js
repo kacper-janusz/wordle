@@ -6,7 +6,8 @@ const gridBlocks = document.querySelectorAll(".grid-blocks");
 let activeIndex = 0;
 let currentRow = 0;
 const rowLength = 5;
-const popUp = document.querySelector(".popup-Box");
+let selectedWordArray;
+const popUp = document.querySelector(".popup-box");
 const lowerCaseWords = randomWords.map(function (item) {
   return item.toLowerCase();
 });
@@ -15,6 +16,7 @@ function initialize() {
   const randomIndex = Math.floor(Math.random() * lowerCaseWords.length);
   selectedWord = lowerCaseWords[randomIndex];
   console.log(selectedWord);
+  selectedWordArray = selectedWord.split("");
 }
 
 initialize();
@@ -49,10 +51,10 @@ function showPopup(message) {
   popupMessage.textContent = message;
   scoreElement.textContent = score;
 
-  const popupBox = document.querySelector('popup-Box');
+  const popupBox = document.querySelector('.popup-box');
   popupBox.style.display = 'block';
 
-  const nextRoundBtn = document.getElementById('next-round-btn');
+  const nextRoundBtn = document.getElementById('next-round-button');
   nextRoundBtn.addEventListener("click", function() {
     currentRow = 0;
     activeIndex = 0;
@@ -63,9 +65,7 @@ function showPopup(message) {
 
 function checkWord() {
   let typedWord = "";
-  let selectedWordArray = selectedWord.split("");
   let checkedLetter = [];
-
   let feedbackColors = new Array(rowLength).fill("red");
 
   for (let rowIndex = 0; rowIndex < rowLength; rowIndex++) {
@@ -98,8 +98,7 @@ function checkWord() {
 
   if (typedWord === selectedWord) {
     console.log("you guessed it");
-    alert(`you guessed it / the word was: ${selectedWord}`);
-    gridBlocks.forEach((grid) => (grid.style.color = "#009933"));
+    showPopup(`congratulation!! You guessed the word: ${selectedWord}, Your score is ${score}`);
   } else {
     console.log("you're wrong");
     if (currentRow < gridBlocks.length / rowLength - 1) {

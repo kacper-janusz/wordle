@@ -8,7 +8,13 @@ let selectedWord;
 let selectedWordArray;
 let lastWord = "You will see the last round word here";
 const rowLength = 5;
+const scoreElement = document.getElementById("score");
+const popupBox = document.querySelector(".popup-box");
 const gridBlocks = document.querySelectorAll(".grid-blocks");
+const popupMessage = document.getElementById("popup-message");
+const lastWordElement = document.querySelector(".js-last-word");
+const streakElement = document.querySelector(".js-streak-amount");
+const nextRoundBtn = document.getElementById("next-round-button");
 const keyboardButtons = document.querySelectorAll(".keyboard-button");
 const lowerCaseWords = randomWords.map(function (item) {
   return item.toLowerCase();
@@ -30,20 +36,25 @@ document.addEventListener("keydown", function (event) {
 
 keyboardButtons.forEach((button) => {
   button.addEventListener("click", function () {
+    const buttonText = button.textContent;
+    if (buttonText === "⌫") {
+      handlekeyAction("Backspace");
+    }
     handlekeyAction(button.textContent);
   });
 });
 
 function handlekeyAction(key) {
-  if (key === "Backspace") {
+  key = key.toLowerCase();
+  if (key === "backspace") {
     if (activeIndex > 0) {
       activeIndex--;
       const currentGrid = gridBlocks[currentRow * rowLength + activeIndex];
       currentGrid.textContent = "";
     }
-  } else if (/^[a-z]$/.test(key) && activeIndex < rowLength) {
+  } else if (/^[a-zA-Z]$/.test(key) && activeIndex < rowLength) {
     const currentGrid = gridBlocks[currentRow * rowLength + activeIndex];
-    currentGrid.textContent = key;
+    currentGrid.textContent = key.toLowerCase();
     activeIndex++;
     console.log("Active index:", activeIndex);
 
@@ -55,15 +66,10 @@ function handlekeyAction(key) {
 }
 
 function showPopup(message) {
-  const popupMessage = document.getElementById("popup-message");
-  const scoreElement = document.getElementById("score");
   popupMessage.textContent = message;
   scoreElement.textContent = score;
-
-  const popupBox = document.querySelector(".popup-box");
   popupBox.style.display = "block";
 
-  const nextRoundBtn = document.getElementById("next-round-button");
   nextRoundBtn.addEventListener("click", function () {
     currentRow = 0;
     activeIndex = 0;
@@ -86,34 +92,30 @@ function checkWord() {
 
   for (let rowIndex = 0; rowIndex < rowLength; rowIndex++) {
     const currentGrid = gridBlocks[currentRow * rowLength + rowIndex];
+    const letter = currentGrid.textContent.toLowerCase();
     typedWord += currentGrid.textContent;
 
-    if (currentGrid.textContent === selectedWordArray[rowIndex]) {
+    if (letter === selectedWordArray[rowIndex]) {
       feedbackColors[rowIndex] = "green";
       checkedLetter.push(rowIndex);
     }
-  }
-  for (let rowIndex = 0; rowIndex < rowLength; rowIndex++) {
-    if (feedbackColors[rowIndex] === "green") continue;
 
-    for (let j = 0; j < rowLength; j++) {
-      if (checkedLetter.includes(j)) continue;
-      if (typedWord[rowIndex] === selectedWordArray[j]) {
-        feedbackColors[rowIndex] = "#cccc00";
-        checkedLetter.push(j);
-        break;
-      }
+    if (letter === "green") continue;
+
+    if (
+      selectedWordArray.includes(letter) &&
+      !checkedLetter.includes(rowIndex)
+    ) {
+      feedbackColors[rowIndex] = "#cccc00";
+      checkedLetter.push(rowIndex);
     }
-  }
-  console.log("Typed word:", typedWord);
 
-  for (let rowIndex = 0; rowIndex < rowLength; rowIndex++) {
-    const currentGrid = gridBlocks[currentRow * rowLength + rowIndex];
     currentGrid.style.color = feedbackColors[rowIndex];
     keyboardButtonsColor(typedWord[rowIndex], feedbackColors[rowIndex]);
   }
+  console.log("Typed word:", typedWord);
 
-  if (typedWord === selectedWord) {
+  if (typedWord.toLowerCase() === selectedWord) {
     console.log("you guessed it");
     score++;
     streak++;
@@ -140,15 +142,23 @@ function keyboardButtonsColor(letter, color) {
   const button = document.querySelector(
     `.keyboard-button[data-key="${letter}"]`
   );
-  if (!button) return;
-  button.style.backgroundColor =
-    color === "green" ? "green" : color === "#cccc00" ? "#cccc00" : "red";
+  if (button) {
+    if (
+      color === "red" &&
+      button.style.backgroundColor !== "green" &&
+      button.style.backgroundColor !== "#cccc00"
+    ) {
+      button.style.backgroundColor = "red";
+    }
+  }
+  if (color === "green") {
+    button.style.backgroundColor = "green";
+  } else if (color === "#cccc00") {
+    button.style.backgroundColor = "#cccc00";
+  }
 }
 
 function updateGameInfo() {
-  const lastWordElement = document.querySelector(".js-last-word");
-  const streakElement = document.querySelector(".js-streak-amount");
-
   streakElement.textContent = streak;
   lastWordElement.textContent = lastWord;
 }

@@ -1,20 +1,20 @@
 import { randomWords } from "/words.js";
 
-let score = 0;
-let streak = 0;
-let currentRow = 0;
-let activeIndex = 0;
+let score = 0,
+  streak = 0,
+  currentRow = 0,
+  activeIndex = 0;
 let selectedWord;
 let selectedWordArray;
 let lastWord = "You will see the last round word here";
 const rowLength = 5;
-const scoreElement = document.getElementById("score");
-const popupBox = document.querySelector(".popup-box");
-const gridBlocks = document.querySelectorAll(".grid-blocks");
+const popupBox = document.getElementById("popup-box");
 const popupMessage = document.getElementById("popup-message");
-const lastWordElement = document.querySelector(".js-last-word");
-const streakElement = document.querySelector(".js-streak-amount");
 const nextRoundBtn = document.getElementById("next-round-button");
+const gridBlocks = document.querySelectorAll(".grid-blocks");
+const lastWordElement = document.getElementById("js-last-word");
+const streakElement = document.getElementById("js-streak-amount");
+const scoreElement = document.getElementById("score");
 const keyboardButtons = document.querySelectorAll(".keyboard-button");
 const lowerCaseWords = randomWords.map(function (item) {
   return item.toLowerCase();
@@ -40,7 +40,7 @@ keyboardButtons.forEach((button) => {
     if (buttonText === "⌫") {
       handlekeyAction("Backspace");
     }
-    handlekeyAction(button.textContent);
+    handlekeyAction(buttonText);
   });
 });
 
@@ -49,12 +49,12 @@ function handlekeyAction(key) {
   if (key === "backspace") {
     if (activeIndex > 0) {
       activeIndex--;
-      const currentGrid = gridBlocks[currentRow * rowLength + activeIndex];
-      currentGrid.textContent = "";
+      const currentBlock = gridBlocks[currentRow * rowLength + activeIndex];
+      currentBlock.textContent = "";
     }
   } else if (/^[a-zA-Z]$/.test(key) && activeIndex < rowLength) {
-    const currentGrid = gridBlocks[currentRow * rowLength + activeIndex];
-    currentGrid.textContent = key.toLowerCase();
+    const currentBlock = gridBlocks[currentRow * rowLength + activeIndex];
+    currentBlock.textContent = key;
     activeIndex++;
     console.log("Active index:", activeIndex);
 
@@ -70,47 +70,48 @@ function showPopup(message) {
   scoreElement.textContent = score;
   popupBox.style.display = "block";
 
-  nextRoundBtn.addEventListener("click", function () {
-    currentRow = 0;
-    activeIndex = 0;
-    gridBlocks.forEach((block) => {
-      block.textContent = "";
-      block.style.color = "";
-    });
-    keyboardButtons.forEach((button) => {
-      button.style.backgroundColor = "";
-    });
-    initialize();
-    popupBox.style.display = "none";
-  });
+  nextRoundBtn.addEventListener(
+    "click",
+    function () {
+      currentRow = 0;
+      activeIndex = 0;
+      gridBlocks.forEach((block) => {
+        block.textContent = "";
+        block.style.color = "";
+      });
+      keyboardButtons.forEach((button) => {
+        button.style.backgroundColor = "";
+      });
+
+      initialize();
+      popupBox.style.display = "none";
+    },
+    { once: true }
+  );
 }
 
 function checkWord() {
   let typedWord = "";
-  let checkedLetter = [];
+  let checkedLetters = [];
   let feedbackColors = new Array(rowLength).fill("red");
 
   for (let rowIndex = 0; rowIndex < rowLength; rowIndex++) {
-    const currentGrid = gridBlocks[currentRow * rowLength + rowIndex];
-    const letter = currentGrid.textContent.toLowerCase();
-    typedWord += currentGrid.textContent;
+    const currentBlock = gridBlocks[currentRow * rowLength + rowIndex];
+    const letter = currentBlock.textContent.toLowerCase();
+    typedWord += currentBlock.textContent;
 
     if (letter === selectedWordArray[rowIndex]) {
       feedbackColors[rowIndex] = "green";
-      checkedLetter.push(rowIndex);
-    }
-
-    if (letter === "green") continue;
-
-    if (
+      checkedLetters.push(rowIndex);
+    } else if (
       selectedWordArray.includes(letter) &&
-      !checkedLetter.includes(rowIndex)
+      !checkedLetters.includes(rowIndex)
     ) {
       feedbackColors[rowIndex] = "#cccc00";
-      checkedLetter.push(rowIndex);
+      checkedLetters.push(rowIndex);
     }
 
-    currentGrid.style.color = feedbackColors[rowIndex];
+    currentBlock.style.color = feedbackColors[rowIndex];
     keyboardButtonsColor(typedWord[rowIndex], feedbackColors[rowIndex]);
   }
   console.log("Typed word:", typedWord);
@@ -146,14 +147,19 @@ function keyboardButtonsColor(letter, color) {
     if (
       color === "red" &&
       button.style.backgroundColor !== "green" &&
-      button.style.backgroundColor !== "#cccc00"
+      button.style.backgroundColor !== "cccc00"
     ) {
       button.style.backgroundColor = "red";
     }
   }
   if (color === "green") {
     button.style.backgroundColor = "green";
-  } else if (color === "#cccc00") {
+    return;
+  } else if (
+    color === "#cccc00" &&
+    button.style.backgroundColor !== "green" &&
+    button.style.backgroundColor !== "#cccc00"
+  ) {
     button.style.backgroundColor = "#cccc00";
   }
 }
